@@ -10,18 +10,18 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <div class="brand-mark">C4</div>
+          <img class="brand-mark" src="./assets/app-icon.png" alt="Calendar4XD icon" />
           <div>
             <h1>Calendar4XD</h1>
-            <p>任务日历</p>
+            <p>&#20219;&#21153;&#26085;&#21382;</p>
           </div>
         </div>
 
         <section class="side-section">
           <div class="year-row">
-            <button class="icon-btn" id="prevYear" title="上一年">‹</button>
+            <button class="icon-btn" id="prevYear" title="&#19978;&#19968;&#24180;">&lt;</button>
             <strong id="yearLabel">2026</strong>
-            <button class="icon-btn" id="nextYear" title="下一年">›</button>
+            <button class="icon-btn" id="nextYear" title="&#19979;&#19968;&#24180;">&gt;</button>
           </div>
           <div class="month-list" id="monthList"></div>
         </section>
@@ -29,18 +29,45 @@
         <section class="side-section">
           <label class="toggle-row">
             <span>
-              <strong>单线程模式</strong>
-              <small>每天只安排一个任务</small>
+              <strong>&#21333;&#32447;&#31243;&#27169;&#24335;</strong>
+              <small>&#27599;&#22825;&#40664;&#35748;&#21482;&#23433;&#25490;&#19968;&#20010;&#20219;&#21153;</small>
             </span>
             <input type="checkbox" id="singleThreadToggle" checked />
           </label>
         </section>
 
+        <section class="side-section">
+          <button id="syncHolidayBtn" class="wide-btn" type="button">&#21516;&#27493;&#26412;&#24180;&#33410;&#20551;&#26085;</button>
+        </section>
+
         <section class="side-section shift-panel">
-          <h2>整体任务线</h2>
+          <h2>&#20219;&#21153;&#31227;&#21160;</h2>
           <div class="shift-actions">
-            <button id="shiftBack">← 前移一天</button>
-            <button id="shiftForward">后移一天 →</button>
+            <button id="shiftBack">&lt; &#21069;&#31227;</button>
+            <button id="shiftForward">&#21518;&#31227; &gt;</button>
+          </div>
+        </section>
+
+        <section class="side-section stats-card compact-stats">
+          <div class="section-heading">
+            <h3>&#26435;&#20540;&#32479;&#35745;</h3>
+            <span id="monthStatsLabel">&#26412;&#26376;</span>
+          </div>
+          <div class="stats-grid">
+            <div><small>&#24635;&#21021;&#31295;</small><strong id="totalPoints">0.00</strong></div>
+            <div><small>&#26412;&#26376;&#21021;&#31295;</small><strong id="monthPoints">0.00</strong></div>
+            <div><small>&#24403;&#26085;&#21021;&#31295;</small><strong id="todayPoints">0.00</strong></div>
+            <div><small>&#24635;&#36882;&#20132;</small><strong id="totalDeliveryWeight">0.00</strong></div>
+            <div><small>&#26412;&#26376;&#36882;&#20132;</small><strong id="monthDeliveryWeight">0.00</strong></div>
+            <div><small>&#24403;&#26085;&#36882;&#20132;</small><strong id="todayDeliveryWeight">0.00</strong></div>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="legend">
+            <span><i class="dot todo"></i>&#26410;&#22788;&#29702;</span>
+            <span><i class="dot done"></i>&#24050;&#23436;&#25104;</span>
+            <span><i class="dot drag"></i>&#21487;&#25302;&#25341;&#25442;&#26085;&#26399;</span>
           </div>
         </section>
       </aside>
@@ -48,18 +75,19 @@
       <main class="main-panel">
         <header class="topbar">
           <div>
-            <p class="eyebrow">月视图</p>
-            <h2 id="monthTitle">2026年5月</h2>
+            <p class="eyebrow">&#26376;&#35270;&#22270;</p>
+            <h2 id="monthTitle">2026&#24180;5&#26376;</h2>
           </div>
           <div class="top-actions">
-            <button id="todayBtn">今天</button>
-            <button class="primary" id="newTaskBtn">新建任务</button>
+            <button id="todayBtn">&#20170;&#22825;</button>
+            <button id="overviewBtn">&#20219;&#21153;&#24635;&#35272;</button>
+            <button class="primary" id="newTaskBtn">&#26032;&#24314;&#20219;&#21153;</button>
           </div>
         </header>
 
         <section class="calendar-wrap">
           <div class="weekdays">
-            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            <span>&#19968;</span><span>&#20108;</span><span>&#19977;</span><span>&#22235;</span><span>&#20116;</span><span>&#20845;</span><span>&#26085;</span>
           </div>
           <div class="calendar-grid" id="calendarGrid"></div>
         </section>
@@ -67,81 +95,122 @@
 
       <aside class="detail-panel">
         <section class="detail-card selected-day">
-          <p class="eyebrow">选中日期</p>
-          <h2 id="selectedDateTitle">5月14日 星期四</h2>
-          <p id="selectedDateHint">查看或编辑当天任务</p>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">&#36873;&#20013;&#26085;&#26399;</p>
+              <h2 id="selectedDateTitle">5&#26376;14&#26085; &#26143;&#26399;&#22235;</h2>
+            </div>
+            <button class="primary" id="newTaskForDayBtn">&#26032;&#24314;</button>
+          </div>
+          <p id="selectedDateHint">&#20808;&#36873;&#26085;&#26399;&#65292;&#20877;&#26032;&#24314;&#25110;&#32534;&#36753;&#20219;&#21153;</p>
+          <div class="day-type-row">
+            <span id="dayTypeLabel">&#24037;&#20316;&#26085;</span>
+            <div class="day-type-actions">
+              <button id="setDefaultDay" type="button">&#40664;&#35748;</button>
+              <button id="setWorkDay" type="button">&#35774;&#20026;&#24037;&#20316;&#26085;</button>
+              <button id="setRestDay" type="button">&#35774;&#20026;&#20241;&#24687;&#26085;</button>
+            </div>
+          </div>
         </section>
 
-        <section class="detail-card">
+        <section class="detail-card" id="dayListCard">
           <div class="section-heading">
-            <h3>任务编辑</h3>
-            <span id="taskStatusBadge">未安排</span>
+            <h3>&#24403;&#26085;&#20219;&#21153;</h3>
+            <span id="dayTaskCount">0 &#20010;</span>
+          </div>
+          <div class="task-list" id="dayTaskList"></div>
+        </section>
+
+        <section class="detail-card form-card hidden" id="taskFormCard">
+          <div class="section-heading">
+            <h3 id="formTitle">&#26032;&#24314;&#20219;&#21153;</h3>
+            <button class="ghost" id="cancelEditBtn" type="button">&#21462;&#28040;</button>
           </div>
 
           <form id="taskForm">
             <input type="hidden" id="taskId" />
             <label>
-              任务名称
+              &#20219;&#21153;&#21517;&#31216;
               <input id="taskTitle" type="text" placeholder="例如：完成项目周报" required />
             </label>
             <label>
-              备注
-              <textarea id="taskNote" placeholder="补充说明、目标或提醒"></textarea>
+              &#22791;&#27880;
+              <textarea id="taskNote" placeholder="补充目标、提醒或收益说明"></textarea>
             </label>
             <div class="form-grid">
               <label>
-                开始日期
+                &#24320;&#22987;&#26085;&#26399;
                 <input id="taskStart" type="date" required />
               </label>
               <label>
-                持续天数
+                &#25345;&#32493;&#24037;&#20316;&#26085;
                 <input id="taskDuration" type="number" min="1" max="365" value="1" required />
               </label>
               <label>
-                积分
-                <input id="taskPoints" type="number" min="0" value="10" required />
+                &#21021;&#31295;&#26435;&#20540;
+                <input id="taskPoints" type="number" min="0" step="0.01" value="1.00" required />
               </label>
               <label>
-                状态
+                &#29366;&#24577;
                 <select id="taskCompleted">
-                  <option value="false">进行中</option>
-                  <option value="true">已完成</option>
+                  <option value="false">&#26410;&#22788;&#29702;</option>
+                  <option value="true">&#24050;&#23436;&#25104;</option>
                 </select>
+              </label>
+              <label>
+                &#20219;&#21153;&#39068;&#33394;
+                <input id="taskColor" type="color" value="#d95f93" />
               </label>
             </div>
             <div class="form-actions">
-              <button type="submit" class="primary">保存任务</button>
-              <button type="button" id="completeTodayBtn">今日完成</button>
-              <button type="button" class="danger" id="deleteTaskBtn">删除</button>
+              <button type="submit" class="primary">&#20445;&#23384;</button>
+              <button type="button" id="completeTodayBtn">&#20170;&#26085;&#23436;&#25104;</button>
+              <button type="button" class="danger" id="deleteTaskBtn">&#21024;&#38500;</button>
             </div>
           </form>
         </section>
 
-        <section class="detail-card">
+        <section class="detail-card delivery-card">
           <div class="section-heading">
-            <h3>单线程调整</h3>
-            <span>自动排程</span>
+            <h3>&#36882;&#20132;&#26435;&#20540;</h3>
+            <span id="deliveryDayTotal">0.00</span>
           </div>
-          <div class="flow-actions">
-            <button id="pushFromSelected">后续顺延一天</button>
-            <button id="pullFromSelected">后续前移一天</button>
-          </div>
-          <p class="muted">插入多日任务时，后续任务会按持续天数自动顺延；提前完成会释放剩余天数并前移后续任务。</p>
+          <form class="delivery-form" id="deliveryForm">
+            <div class="delivery-grid">
+              <label>
+                &#26435;&#20540;
+                <input id="deliveryWeight" type="number" min="0" step="0.01" value="1.00" required />
+              </label>
+              <label>
+                &#22791;&#27880;
+                <input id="deliveryNote" type="text" placeholder="例如：已递交初稿" />
+              </label>
+            </div>
+            <button type="submit" class="primary">&#28155;&#21152;&#36882;&#20132;</button>
+          </form>
+          <div class="delivery-list" id="deliveryList"></div>
         </section>
 
-        <section class="detail-card stats-card">
-          <div class="section-heading">
-            <h3>积分统计</h3>
-            <span id="monthStatsLabel">本月</span>
-          </div>
-          <div class="stats-grid">
-            <div><small>总积分</small><strong id="totalPoints">0</strong></div>
-            <div><small>本月积分</small><strong id="monthPoints">0</strong></div>
-            <div><small>今日积分</small><strong id="todayPoints">0</strong></div>
-          </div>
-          <div class="bars" id="statsBars"></div>
-        </section>
       </aside>
+    </div>
+
+    <div class="drawer hidden" id="overviewDrawer">
+      <div class="drawer-backdrop" id="overviewBackdrop"></div>
+      <section class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <p class="eyebrow">&#20840;&#37096;&#20219;&#21153;</p>
+            <h2>&#20219;&#21153;&#24635;&#35272;</h2>
+          </div>
+          <button class="icon-btn" id="closeOverviewBtn" title="关闭">x</button>
+        </div>
+        <div class="overview-filters">
+          <button class="filter active" data-filter="all">&#20840;&#37096;</button>
+          <button class="filter" data-filter="todo">&#26410;&#22788;&#29702;</button>
+          <button class="filter" data-filter="done">&#24050;&#23436;&#25104;</button>
+        </div>
+        <div class="overview-list" id="overviewList"></div>
+      </section>
     </div>
 
     <div class="toast" id="toast"></div>

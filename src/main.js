@@ -8,6 +8,7 @@ function createWindow() {
     minWidth: 1120,
     minHeight: 760,
     title: 'Calendar4XD',
+    icon: path.join(__dirname, 'assets', 'app-icon.ico'),
     backgroundColor: '#fff8fb',
     webPreferences: {
       contextIsolation: true,

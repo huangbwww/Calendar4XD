@@ -4,6 +4,7 @@
   "description": "A Windows desktop calendar scheduler with single-thread task planning and points tracking.",
   "main": "src/main.js",
   "scripts": {
+    "dev": "electron .",
     "start": "electron .",
     "pack:win": "electron-builder --win portable"
   },
@@ -22,6 +23,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "src/assets/app-icon.ico",
       "target": "portable"
     }
   }
