@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar4XD</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">C4</div>
+          <div>
+            <h1>Calendar4XD</h1>
+            <p>任务日历</p>
+          </div>
+        </div>
+
+        <section class="side-section">
+          <div class="year-row">
+            <button class="icon-btn" id="prevYear" title="上一年">‹</button>
+            <strong id="yearLabel">2026</strong>
+            <button class="icon-btn" id="nextYear" title="下一年">›</button>
+          </div>
+          <div class="month-list" id="monthList"></div>
+        </section>
+
+        <section class="side-section">
+          <label class="toggle-row">
+            <span>
+              <strong>单线程模式</strong>
+              <small>每天只安排一个任务</small>
+            </span>
+            <input type="checkbox" id="singleThreadToggle" checked />
+          </label>
+        </section>
+
+        <section class="side-section shift-panel">
+          <h2>整体任务线</h2>
+          <div class="shift-actions">
+            <button id="shiftBack">← 前移一天</button>
+            <button id="shiftForward">后移一天 →</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">月视图</p>
+            <h2 id="monthTitle">2026年5月</h2>
+          </div>
+          <div class="top-actions">
+            <button id="todayBtn">今天</button>
+            <button class="primary" id="newTaskBtn">新建任务</button>
+          </div>
+        </header>
+
+        <section class="calendar-wrap">
+          <div class="weekdays">
+            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </section>
+      </main>
+
+      <aside class="detail-panel">
+        <section class="detail-card selected-day">
+          <p class="eyebrow">选中日期</p>
+          <h2 id="selectedDateTitle">5月14日 星期四</h2>
+          <p id="selectedDateHint">查看或编辑当天任务</p>
+        </section>
+
+        <section class="detail-card">
+          <div class="section-heading">
+            <h3>任务编辑</h3>
+            <span id="taskStatusBadge">未安排</span>
+          </div>
+
+          <form id="taskForm">
+            <input type="hidden" id="taskId" />
+            <label>
+              任务名称
+              <input id="taskTitle" type="text" placeholder="例如：完成项目周报" required />
+            </label>
+            <label>
+              备注
+              <textarea id="taskNote" placeholder="补充说明、目标或提醒"></textarea>
+            </label>
+            <div class="form-grid">
+              <label>
+                开始日期
+                <input id="taskStart" type="date" required />
+              </label>
+              <label>
+                持续天数
+                <input id="taskDuration" type="number" min="1" max="365" value="1" required />
+              </label>
+              <label>
+                积分
+                <input id="taskPoints" type="number" min="0" value="10" required />
+              </label>
+              <label>
+                状态
+                <select id="taskCompleted">
+                  <option value="false">进行中</option>
+                  <option value="true">已完成</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">保存任务</button>
+              <button type="button" id="completeTodayBtn">今日完成</button>
+              <button type="button" class="danger" id="deleteTaskBtn">删除</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="detail-card">
+          <div class="section-heading">
+            <h3>单线程调整</h3>
+            <span>自动排程</span>
+          </div>
+          <div class="flow-actions">
+            <button id="pushFromSelected">后续顺延一天</button>
+            <button id="pullFromSelected">后续前移一天</button>
+          </div>
+          <p class="muted">插入多日任务时，后续任务会按持续天数自动顺延；提前完成会释放剩余天数并前移后续任务。</p>
+        </section>
+
+        <section class="detail-card stats-card">
+          <div class="section-heading">
+            <h3>积分统计</h3>
+            <span id="monthStatsLabel">本月</span>
+          </div>
+          <div class="stats-grid">
+            <div><small>总积分</small><strong id="totalPoints">0</strong></div>
+            <div><small>本月积分</small><strong id="monthPoints">0</strong></div>
+            <div><small>今日积分</small><strong id="todayPoints">0</strong></div>
+          </div>
+          <div class="bars" id="statsBars"></div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

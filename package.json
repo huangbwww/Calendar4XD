@@ -1,0 +1,28 @@
+{
+  "name": "calendar4xd",
+  "version": "0.1.0",
+  "description": "A Windows desktop calendar scheduler with single-thread task planning and points tracking.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack:win": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.calendar4xd.app",
+    "productName": "Calendar4XD",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  }
+}
