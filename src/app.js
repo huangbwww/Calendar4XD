@@ -518,6 +518,9 @@ function renderCalendar() {
     const completedDraftWeight = tasks
       .filter((task) => task.completed && taskDates(task)[0] === iso)
       .reduce((sum, task) => sum + task.draftWeight, 0);
+    const deliveryWeight = (state.deliveryEntries || [])
+      .filter((entry) => entry.date === iso)
+      .reduce((sum, entry) => sum + entry.weight, 0);
 
     const cell = document.createElement('div');
     cell.className = 'day-cell';
@@ -556,7 +559,6 @@ function renderCalendar() {
       <span class="day-number">${date.getDate()}</span>
       <span class="day-tags">
         ${renderDayTypeBadge(iso)}
-        <span class="day-points">${completedDraftWeight ? `+${formatWeight(completedDraftWeight)}` : ''}</span>
       </span>
     `;
     cell.append(head);
@@ -577,6 +579,16 @@ function renderCalendar() {
       more.className = 'more-count';
       more.textContent = `还有 ${tasks.length - visibleCount} 个`;
       cell.append(more);
+    }
+
+    if (completedDraftWeight || deliveryWeight) {
+      const weights = document.createElement('div');
+      weights.className = 'day-weights';
+      weights.innerHTML = `
+        ${completedDraftWeight ? `<span class="weight-pill draft">初稿 ${formatWeight(completedDraftWeight)}</span>` : ''}
+        ${deliveryWeight ? `<span class="weight-pill delivery">递交 ${formatWeight(deliveryWeight)}</span>` : ''}
+      `;
+      cell.append(weights);
     }
 
     els.calendarGrid.append(cell);
