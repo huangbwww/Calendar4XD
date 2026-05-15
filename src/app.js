@@ -65,7 +65,41 @@ const today = stripTime(new Date());
 let state = loadState();
 let uiMode = 'view';
 let overviewFilter = 'all';
+const undoStack = [];
 migrateSyncedManualOverrides();
+
+function snapshotState() {
+  return {
+    state: JSON.parse(JSON.stringify(state)),
+    uiMode,
+    overviewFilter
+  };
+}
+
+function recordUndo(label) {
+  undoStack.push({ ...snapshotState(), label });
+  if (undoStack.length > 50) undoStack.shift();
+}
+
+function undoLastChange() {
+  const snapshot = undoStack.pop();
+  if (!snapshot) {
+    showToast('没有可撤销的操作');
+    return;
+  }
+  state = snapshot.state;
+  uiMode = snapshot.uiMode;
+  overviewFilter = snapshot.overviewFilter;
+  showToast(`已撤销：${snapshot.label}`);
+  render();
+}
+
+function isEditingText(event) {
+  const target = event.target;
+  if (!target) return false;
+  const tagName = target.tagName;
+  return target.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+}
 
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map((key) => localStorage.getItem(key)).find(Boolean);
@@ -484,6 +518,9 @@ function renderCalendar() {
     const completedDraftWeight = tasks
       .filter((task) => task.completed && taskDates(task)[0] === iso)
       .reduce((sum, task) => sum + task.draftWeight, 0);
+    const deliveryWeight = (state.deliveryEntries || [])
+      .filter((entry) => entry.date === iso)
+      .reduce((sum, entry) => sum + entry.weight, 0);
 
     const cell = document.createElement('div');
     cell.className = 'day-cell';
@@ -522,7 +559,6 @@ function renderCalendar() {
       <span class="day-number">${date.getDate()}</span>
       <span class="day-tags">
         ${renderDayTypeBadge(iso)}
-        <span class="day-points">${completedDraftWeight ? `+${formatWeight(completedDraftWeight)}` : ''}</span>
       </span>
     `;
     cell.append(head);
@@ -543,6 +579,16 @@ function renderCalendar() {
       more.className = 'more-count';
       more.textContent = `还有 ${tasks.length - visibleCount} 个`;
       cell.append(more);
+    }
+
+    if (completedDraftWeight || deliveryWeight) {
+      const weights = document.createElement('div');
+      weights.className = 'day-weights';
+      weights.innerHTML = `
+        ${completedDraftWeight ? `<span class="weight-pill draft">初稿 ${formatWeight(completedDraftWeight)}</span>` : ''}
+        ${deliveryWeight ? `<span class="weight-pill delivery">递交 ${formatWeight(deliveryWeight)}</span>` : ''}
+      `;
+      cell.append(weights);
     }
 
     els.calendarGrid.append(cell);
@@ -787,6 +833,7 @@ function upsertTask(event) {
     return;
   }
 
+  recordUndo(oldTask ? '编辑任务' : '新建任务');
   if (oldTask) {
     Object.assign(oldTask, nextTask);
     showToast('任务已保存');
@@ -805,6 +852,7 @@ function completeTask(id, completedDate = state.selectedDate) {
   const task = findTask(id);
   if (!task || task.completed) return;
 
+  recordUndo('完成任务');
   const dates = taskDates(task);
   const finishISO = dates.includes(completedDate) ? completedDate : dates.at(-1);
   task.completed = true;
@@ -817,6 +865,7 @@ function completeTask(id, completedDate = state.selectedDate) {
 function undoCompleteTask(id) {
   const task = findTask(id);
   if (!task) return;
+  recordUndo('撤回完成');
   task.completed = false;
   task.completedDate = null;
   showToast('已撤回完成状态');
@@ -826,6 +875,7 @@ function undoCompleteTask(id) {
 function deleteTask(id) {
   const task = findTask(id);
   if (!task) return;
+  recordUndo('删除任务');
   state.tasks = state.tasks.filter((item) => item.id !== id);
   if (els.taskId.value === id) uiMode = 'view';
   showToast('任务已删除');
@@ -836,6 +886,7 @@ function moveTaskToDate(payload, dateISO) {
   const { taskId, draggedOffset } = parseDragPayload(payload);
   const task = findTask(taskId);
   if (!task) return;
+  recordUndo('拖拽移动任务');
   const dropAnchor = normalizeWorkStart(dateISO);
   const targetStart = alignTaskStartToDraggedDate(dropAnchor, draggedOffset);
   const targetDates = getPlannedDates(targetStart, task.duration);
@@ -852,6 +903,7 @@ function moveTaskToDate(payload, dateISO) {
 }
 
 function setDayOverride(value) {
+  recordUndo('调整日期类型');
   if (!state.manualDayOverrides) state.manualDayOverrides = {};
   if (value) {
     state.manualDayOverrides[state.selectedDate] = value;
@@ -870,6 +922,7 @@ function addDeliveryEntry(event) {
     showToast('递交权值需要大于 0');
     return;
   }
+  recordUndo('添加递交权值');
   if (!state.deliveryEntries) state.deliveryEntries = [];
   state.deliveryEntries.push({
     id: crypto.randomUUID(),
@@ -884,6 +937,7 @@ function addDeliveryEntry(event) {
 }
 
 function deleteDeliveryEntry(id) {
+  recordUndo('删除递交权值');
   state.deliveryEntries = (state.deliveryEntries || []).filter((entry) => entry.id !== id);
   showToast('递交权值已删除');
   render();
@@ -901,6 +955,7 @@ async function syncCurrentYearHolidays(options = {}) {
     const holidays = payload.holiday || {};
     let count = 0;
 
+    if (!silent) recordUndo('同步节假日');
     Object.values(holidays).forEach((item) => {
       const iso = item.date || (item.year && item.date ? `${item.year}-${item.date}` : null);
       if (!iso) return;
@@ -944,6 +999,7 @@ function moveActiveTasks(direction) {
     return;
   }
 
+  recordUndo(direction > 0 ? '任务后移' : '任务前移');
   const movingIds = new Set(tasks.map((task) => task.id));
   const orderedTasks = [...tasks].sort((a, b) => taskDates(a)[0].localeCompare(taskDates(b)[0]));
   if (direction > 0) orderedTasks.reverse();
@@ -1057,6 +1113,13 @@ document.querySelectorAll('.filter').forEach((button) => {
     document.querySelectorAll('.filter').forEach((item) => item.classList.toggle('active', item === button));
     renderOverview();
   });
+});
+
+document.addEventListener('keydown', (event) => {
+  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z' || event.shiftKey || event.altKey) return;
+  if (isEditingText(event)) return;
+  event.preventDefault();
+  undoLastChange();
 });
 
 render();
